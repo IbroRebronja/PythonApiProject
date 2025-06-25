@@ -20,16 +20,18 @@ def handler(request):
         }
 
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
-    res = requests.get(url)
-
-    if res.status_code != 200:
+    
+    try:
+        res = requests.get(url)
+        res.raise_for_status()
+        data = res.json()
+    except Exception as e:
         return {
-            "statusCode": res.status_code,
+            "statusCode": 500,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps({"error": "Weather API error"})
+            "body": json.dumps({"error": str(e)})
         }
 
-    data = res.json()
     weather_info = {
         "city": data["name"],
         "temperature": data["main"]["temp"],

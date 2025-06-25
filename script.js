@@ -1,12 +1,19 @@
 async function getWeather() {
   const city = document.getElementById("cityInput").value;
-  const res = await fetch(`/api/weather?city=${city}`);
-  const data = await res.json();
-  const resultDiv = document.getElementById("result");
+  try {
+    const res = await fetch(`/api/weather?city=${city}`);
+    const text = await res.text();
 
-  if (res.ok) {
-    resultDiv.innerHTML = `🌤 ${data.city}: ${data.temperature}°C, ${data.condition}`;
-  } else {
-    resultDiv.innerHTML = `❌ Error: ${data}`;
+    const data = JSON.parse(text);
+    if (res.ok) {
+      document.getElementById("result").innerText =
+        `🌤 ${data.city}: ${data.temperature}°C, ${data.condition}`;
+    } else {
+      document.getElementById("result").innerText =
+        `❌ Error: ${data.error || 'Something went wrong'}`;
+    }
+  } catch (err) {
+    document.getElementById("result").innerText = "⚠️ Failed to fetch weather.";
+    console.error("Parse or fetch error:", err);
   }
 }
