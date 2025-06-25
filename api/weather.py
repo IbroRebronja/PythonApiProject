@@ -19,9 +19,8 @@ def handler(request):
             "body": json.dumps({"error": "API key not set"})
         }
 
-    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
-    
     try:
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
         res = requests.get(url)
         res.raise_for_status()
         data = res.json()
