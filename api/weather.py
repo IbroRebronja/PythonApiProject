@@ -1,3 +1,4 @@
+import os
 import requests
 
 def handler(request):
@@ -5,10 +6,13 @@ def handler(request):
     if not city:
         return {"statusCode": 400, "body": "City not provided"}
 
-    api_key = "2ec8c559173d16db4b8bc1687ad46f96"
-    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+    api_key = os.environ.get("OPENWEATHER_API_KEY")
+    if not api_key:
+        return {"statusCode": 500, "body": "API key not set"}
 
+    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
     res = requests.get(url)
+
     if res.status_code != 200:
         return {"statusCode": res.status_code, "body": res.text}
 
