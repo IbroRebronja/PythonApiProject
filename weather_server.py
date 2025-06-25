@@ -1,4 +1,3 @@
-import os
 import json
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -15,39 +14,30 @@ class WeatherHandler(BaseHTTPRequestHandler):
         city = query_params.get("city", [None])[0]
 
         if not city:
-            self.send_response(400)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(json.dumps({"error": "City is required"}).encode())
+            self._respond_json(400, {"error": "City is required"})
             return
 
         api_key = "2ec8c559173d16db4b8bc1687ad46f96"
-        if not api_key:
-            self.send_error(500, "API key not set")
-            return
-
         url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
 
         try:
             response = requests.get(url)
             if response.status_code != 200:
                 raise Exception("City not found")
-            data = response.json()
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(json.dumps(data).encode())
+            self._respond_json(200, response.json())
         except Exception as e:
-            self.send_response(400)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(json.dumps({"error": str(e)}).encode())
+            self._respond_json(400, {"error": str(e)})
 
-def run(server_class=HTTPServer, handler_class=WeatherHandler, port=8000):
-    server_address = ('', port)
-    httpd = server_class(server_address, handler_class)
-    print(f"Starting Weather API server on port {port}...")
-    httpd.serve_forever()
+    def _respond_json(self, status_code, data):
+        self.send_response(status_code)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(data).encode())
+
+def run():
+    server = HTTPServer(('', 8000), WeatherHandler)
+    print("Weather API running at http://localhost:8000/api/weather")
+    server.serve_forever()
 
 if __name__ == "__main__":
     run()
