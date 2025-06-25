@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/weather.py": {
-      "runtime": "python3.9"
-    }
-  }
-}
